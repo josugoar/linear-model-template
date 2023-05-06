@@ -20,7 +20,7 @@ par(mfrow = c(2,4), mar=c(1,1,1,1))
 # Scatter Plot - Check linear relationships
 for (col_name in colnames(data)) {
   if (col_name != "Concrete.compressive.strength") {
-    scatter.smooth(x=data$Concrete.compressive.strength, y=data[[col_name]], main=col_name, col="lightgreen")
+    scatter.smooth(y=data$Concrete.compressive.strength, x=data[[col_name]], main=col_name, col="lightgreen")
   }
 }
 
@@ -28,7 +28,7 @@ for (col_name in colnames(data)) {
 print("Correlation between each attribute and Concrete.compressive.strength: A low correlation (-0.2 < x < 0.2)", quote=FALSE)
 
 for (col_name in colnames(data)) {
-  print(paste0(col_name, ": ", cor(data$Concrete.compressive.strength, data[[col_name]])), quote=FALSE)
+  print(paste0(col_name, ": ", cor(data[[col_name]], data$Concrete.compressive.strength)), quote=FALSE)
 }
 
 # Percentage of training examples
@@ -65,3 +65,5 @@ print(paste0("- Mean average error: ", best_mean_avg_error))
 
 # Print model summary
 summary(best_model)
+
+print(model)
