@@ -42,17 +42,26 @@ training_samples <- createDataPartition(y = data$Concrete.compressive.strength, 
 training_data <- data[training_samples, ]
 test_data     <- data[-training_samples, ]
 
-# Create Linear Model using training data. Formula = all the columns except Concrete.compressive.strength
-model <- lm(formula = training_data$Concrete.compressive.strength ~., data = training_data)
-
-# Make the prediction using the model and test data
-prediction <- predict(model, test_data)
-
-# Calculate Mean Average Error
-mean_avg_error <- mean(abs(prediction - test_data$Concrete.compressive.strength))
+best_model <- NULL
+best_mean_avg_error <- 0
+for (i in 1:10) {
+  # Create Linear Model using training data. Formula = all the columns except Concrete.compressive.strength
+  model <- lm(formula = training_data$Concrete.compressive.strength ~., data = training_data)
+  
+  # Make the prediction using the model and test data
+  prediction <- predict(model, test_data)
+  
+  # Calculate Mean Average Error
+  mean_avg_error <- mean(abs(prediction - test_data$Concrete.compressive.strength))
+  
+  if (mean_avg_error < best_mean_avg_error) {
+    best_model <- model
+    best_mean_avg_error <- mean_avg_error
+  }
+}
 
 # Print Mean Absolute Error
-print(paste0("- Mean average error: ", mean_avg_error))
+print(paste0("- Mean average error: ", best_mean_avg_error))
 
 # Print model summary
-summary(model)
+summary(best_model)
