@@ -28,7 +28,12 @@ for (col_name in colnames(data)) {
 print("Correlation between each attribute and Concrete.compressive.strength: A low correlation (-0.2 < x < 0.2)", quote=FALSE)
 
 for (col_name in colnames(data)) {
-  print(paste0(col_name, ": ", cor(data[[col_name]], data$Concrete.compressive.strength)), quote=FALSE)
+  correlation <- round(cor(data[[col_name]], data$Concrete.compressive.strength), 2)
+  label = paste0(col_name, ": ", correlation)
+  print(label)
+  print(ggplot(data, aes(y=Concrete.compressive.strength, x=.data[[col_name]])) + geom_point() +
+          geom_smooth(method = "lm", se = FALSE) +
+          labs(title = label, y = "Concrete.compressive.strength", x = col_name))
 }
 
 # Percentage of training examples
