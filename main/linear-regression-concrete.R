@@ -126,5 +126,3 @@ differences <- sort((coef(best_model)["(Intercept)"] +
 for (i in 1:3) {
   print(paste0("Sample ", differences$ix[i], " with difference ", differences$x[i], " points"))
 }
-
-summary(differences)
