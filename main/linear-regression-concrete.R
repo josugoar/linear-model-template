@@ -42,18 +42,18 @@ for (col_name in colnames(data)) {
 # Percentage of training examples
 training_p <- 0.7
 
-# Generate data partition 70% training / 30% test. The result is a vector with 
-# the indexes of the examples that will be used for the training of the model.
-training_samples <- createDataPartition(y = data$Concrete.compressive.strength, p = training_p, list = FALSE)
-
-# Split training and test data
-training_data <- data[training_samples, ]
-test_data     <- data[-training_samples, ]
-
 best_model <- NULL
 best_mean_avg_error <- Inf
 
 for (i in 1:10) {
+  # Generate data partition 70% training / 30% test. The result is a vector with 
+  # the indexes of the examples that will be used for the training of the model.
+  training_samples <- createDataPartition(y = data$Concrete.compressive.strength, p = training_p, list = FALSE)
+  
+  # Split training and test data
+  training_data <- data[training_samples, ]
+  test_data     <- data[-training_samples, ]
+  
   # Create Linear Model using training data. Formula = all the columns except Concrete.compressive.strength
   model <- lm(formula = training_data$Concrete.compressive.strength ~., data = training_data)
   
