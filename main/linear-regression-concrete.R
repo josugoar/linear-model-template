@@ -42,18 +42,21 @@ for (col_name in colnames(data)) {
 # Percentage of training examples
 training_p <- 0.7
 
-# Generate data partition 70% training / 30% test. The result is a vector with 
-# the indexes of the examples that will be used for the training of the model.
-training_samples <- createDataPartition(y = data$Concrete.compressive.strength, p = training_p, list = FALSE)
-
-# Split training and test data
-training_data <- data[training_samples, ]
-test_data     <- data[-training_samples, ]
-
+best_training_data <- NULL
+best_test_data <- NULL
+best_prediction <- NULL
 best_model <- NULL
 best_mean_avg_error <- Inf
 
 for (i in 1:10) {
+  # Generate data partition 70% training / 30% test. The result is a vector with 
+  # the indexes of the examples that will be used for the training of the model.
+  training_samples <- createDataPartition(y = data$Concrete.compressive.strength, p = training_p, list = FALSE)
+  
+  # Split training and test data
+  training_data <- data[training_samples, ]
+  test_data     <- data[-training_samples, ]
+  
   # Create Linear Model using training data. Formula = all the columns except Concrete.compressive.strength
   model <- lm(formula = training_data$Concrete.compressive.strength ~., data = training_data)
   
@@ -64,6 +67,9 @@ for (i in 1:10) {
   mean_avg_error <- mean(abs(prediction - test_data$Concrete.compressive.strength))
   
   if (mean_avg_error < best_mean_avg_error) {
+    best_training_data <- training_data
+    best_test_data <- test_data
+    best_prediction <- prediction
     best_model <- model
     best_mean_avg_error <- mean_avg_error
   }
@@ -82,47 +88,31 @@ abs_error <- abs(predict(model, data) - data$Concrete.compressive.strength)
 print(paste0("Sample ", which.max(abs_error), " with max absolute error ", max(abs_error)))
 
 print("Given any sample, how many units of water must be added or subtracted for the resistance to increase by 10 points?")
-difference <- mean(((data$Concrete.compressive.strength + 10 -
-                     coef(best_model)["(Intercept)"] -
-                     coef(best_model)["Cement"] * data$Cement -
-                     coef(best_model)["Blast.Furnace.Slag"] * data$Blast.Furnace.Slag -
-                     coef(best_model)["Fly.Ash"] * data$Fly.Ash -
-                     coef(best_model)["Superplasticizer"] * data$Superplasticizer -
-                     coef(best_model)["Coarse.Aggregate"] * data$Coarse.Aggregate -
-                     coef(best_model)["Fine.Aggregate"] * data$Fine.Aggregate -
-                     coef(best_model)["Age"] * data$Age) /
-                    coef(best_model)["Water"]) -
-                   data$Water)
-print(paste0(difference, " units of water"))
+idx <- sample(1:length(data), 1)
+difference <- ((data$Concrete.compressive.strength[idx] + 10 -
+                coef(best_model)["(Intercept)"] -
+                coef(best_model)["Cement"] * data$Cement[idx] -
+                coef(best_model)["Blast.Furnace.Slag"] * data$Blast.Furnace.Slag[idx] -
+                coef(best_model)["Fly.Ash"] * data$Fly.Ash[idx] -
+                coef(best_model)["Superplasticizer"] * data$Superplasticizer[idx] -
+                coef(best_model)["Coarse.Aggregate"] * data$Coarse.Aggregate[idx] -
+                coef(best_model)["Fine.Aggregate"] * data$Fine.Aggregate[idx] -
+                coef(best_model)["Age"] * data$Age[idx]) /
+               coef(best_model)["Water"]) -
+              data$Water[idx]
+print(paste0(difference, " units of water from ", data$Concrete.compressive.strength[idx], " resistance to ", data$Concrete.compressive.strength[idx] + 10, " resistance for sample ", idx))
 
 print("Which sample will reduce its strength the most if the superplasticizer is removed?")
-differences <- sort(data$Concrete.compressive.strength -
-                    (coef(best_model)["(Intercept)"] +
-                     coef(best_model)["Cement"] * data$Cement +
-                     coef(best_model)["Blast.Furnace.Slag"] * data$Blast.Furnace.Slag +
-                     coef(best_model)["Fly.Ash"] * data$Fly.Ash +
-                     coef(best_model)["Water"] * data$Water +
-                     coef(best_model)["Coarse.Aggregate"] * data$Coarse.Aggregate +
-                     coef(best_model)["Fine.Aggregate"] * data$Fine.Aggregate +
-                     coef(best_model)["Age"] * data$Age),
-                    decreasing = TRUE,
-                    index.return = TRUE)
+best_training_data$Superplasticizer <- NULL
+model <- lm(formula = best_training_data$Concrete.compressive.strength ~., data = best_training_data)
+prediction <- predict(model, best_test_data)
+differences <- sort(best_prediction - prediction, decreasing = TRUE, index.return = TRUE)
 print(paste0("Sample ", differences$ix[1], " by ", differences$x[1], " points"))
 
 print("Which are the 3 samples that increase their resistance the most by adding 5 units of superplasticizer?")
-differences <- sort((coef(best_model)["(Intercept)"] +
-                     coef(best_model)["Cement"] * data$Cement +
-                     coef(best_model)["Blast.Furnace.Slag"] * data$Blast.Furnace.Slag +
-                     coef(best_model)["Fly.Ash"] * data$Fly.Ash +
-                     coef(best_model)["Water"] * data$Water +
-                     coef(best_model)["Superplasticizer"] * data$Superplasticizer + 5 +
-                     coef(best_model)["Coarse.Aggregate"] * data$Coarse.Aggregate +
-                     coef(best_model)["Fine.Aggregate"] * data$Fine.Aggregate +
-                     coef(best_model)["Age"] * data$Age) -
-                      data$Concrete.compressive.strength,
-                    decreasing = TRUE,
-                    index.return = TRUE)
-
+best_test_data$Superplasticizer <- best_test_data$Superplasticizer + 5
+prediction <- predict(model, best_test_data)
+differences <- sort(prediction - best_prediction, decreasing = TRUE, index.return = TRUE)
 for (i in 1:3) {
   print(paste0("Sample ", differences$ix[i], " with difference ", differences$x[i], " points"))
 }
