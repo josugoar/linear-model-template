@@ -42,9 +42,12 @@ for (col_name in colnames(data)) {
 # Percentage of training examples
 training_p <- 0.7
 
+<<<<<<< HEAD
 best_training_data <- NULL
 best_test_data <- NULL
 best_prediction <- NULL
+=======
+>>>>>>> 55a0fbdf12591425cf619bd8c2a8be7506c9ebe8
 best_model <- NULL
 best_mean_avg_error <- Inf
 
