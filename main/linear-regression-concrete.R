@@ -105,7 +105,7 @@ print(paste0(difference, " units of water from ", data$Concrete.compressive.stre
 print("Which sample will reduce its strength the most if the superplasticizer is removed?")
 best_training_data$Superplasticizer <- NULL
 model <- lm(formula = best_training_data$Concrete.compressive.strength ~., data = best_training_data)
-prediction <- predict(model, best_test_data)
+prediction <- predict(best_model, best_test_data)
 differences <- sort(best_prediction - prediction, decreasing = TRUE, index.return = TRUE)
 print(paste0("Sample ", differences$ix[1], " by ", differences$x[1], " points"))
 
