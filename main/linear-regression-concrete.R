@@ -79,7 +79,7 @@ for (i in 1:10) {
 print(paste0("Mean average error: ", best_mean_avg_error))
 
 # Print model summary
-summary(best_model)
+print(summary(best_model))
 
 # Calculate Absolute Error
 abs_error <- abs(predict(model, data) - data$Concrete.compressive.strength)
@@ -111,7 +111,7 @@ print(paste0("Sample ", differences$ix[1], " by ", differences$x[1], " points"))
 
 print("Which are the 3 samples that increase their resistance the most by adding 5 units of superplasticizer?")
 best_test_data$Superplasticizer <- best_test_data$Superplasticizer + 5
-prediction <- predict(model, best_test_data)
+prediction <- predict(best_model, best_test_data)
 differences <- sort(prediction - best_prediction, decreasing = TRUE, index.return = TRUE)
 for (i in 1:3) {
   print(paste0("Sample ", differences$ix[i], " with difference ", differences$x[i], " points"))
